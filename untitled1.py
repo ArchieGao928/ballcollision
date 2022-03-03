@@ -13,8 +13,8 @@ from matplotlib.animation import FuncAnimation
 np.random.seed(0)
 
 class Particle():
-    def __init__(self, id = 0, r = np.zeros(2), v = np.zeros(2), R = 1E-2, m = 1, color = "blue"):
-        self.id, self.r, self.v, self.R, self.m, self.color = id, r, v, R, m, color 
+    def __init__(self, id = 0, r = np.zeros(2), v = np.zeros(2), R = 1E-2, m = 1, color = "blue", T = np.random.normal(10, 2)):
+        self.id, self.r, self.v, self.R, self.m, self.color, self.T = id, r, v, R, m, color, T
         
 class Sim():
     
@@ -42,11 +42,33 @@ class Sim():
                 m1, m2 = particle1.m, particle2.m
                 v1, v2 = particle1.v, particle2.v
                 r1, r2 = particle1.r, particle2.r
+                T1, T2 = particle1.T, particle2.T
+                color1, color2 = particle1.color, particle2.color
                 if np.dot(r1 - r2, r1 - r2) <= (particle1.R + particle2.R)**2:
                     v1_new = v1 - 2*m2/(m1+m2)*np.dot(v1-v2, r1-r2)/np.dot(r1-r2, r1-r2)* (r1-r2)
                     v2_new = v2 - 2*m1/(m1+m2)*np.dot(v2-v1, r2-r1)/np.dot(r2-r1, r2-r1)* (r2-r1)
                     particle1.v = v1_new
                     particle2.v = v2_new
+                    if color1 == color2:
+                        continue
+                    T1 -=1
+                    T2 -=1
+                    if (T1 <= 0) or (T2 <=0):
+                        if T1 < T2:
+                            color1 = color2
+                            if color2 =="red":
+                                T1 = 10
+                            else: T1 = np.random.normal(10, 2)
+                            
+                        elif T1 > T2:
+                            color2 = color1
+                            if color1 =="red":
+                                T2 = 10
+                            else: T2 = np.random.normal(10, 2)
+                        elif T1 == T2:
+                            T1 = 10
+                            T2 = 10
+                    else: continue
                     ignore_list.append(particle2)
 ###            
     
@@ -70,12 +92,15 @@ sim = Sim()
 for particle in sim.particles:
     particle.r  = np.random.uniform([-sim.X/2, -sim.Y/2], [sim.X/2, sim.Y/2], 
                                     size = 2)
-    particle.v = 1 * np.array([np.cos(np.pi/4), np.cos(np.pi/4)])
+    theta = np.random.random() * 2 * np.pi
+    #particle.v = 1 * np.array([np.cos(np.pi/4), np.cos(np.pi/4)])
+    particle.v = 1 * np.array([np.cos(theta), np.cos(theta)])
     
 #sim.particles[0].color = "red" 
-
+### generate red particle
 for i in range(int(sim.Np/2)):
     sim.particles[i].color = "red"
+    sim.particles[i].T = 10
     
     
 fig, ax = plt.subplots()
@@ -94,5 +119,4 @@ def update(frame):
 
 
 ani = FuncAnimation(fig, update, frames=range(1200), init_func= init, 
-                    blit = True, interval = 1/30, repeat = False)
-
+                    blit = True, interval = 1/30)#, repeat = False)
