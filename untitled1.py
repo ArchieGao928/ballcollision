@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Created on Tue Mar  1 20:50:42 2022
-
 @author: Alienware
 """
+
 
 import numpy as np
 import matplotlib
@@ -92,6 +93,8 @@ for particle in sim.particles:
     
     
 fig, ax = plt.subplots()
+plt.plot([0.5, 0.5], [-1, 1],color="blue")
+plt.plot([-0.5,-0.5],[-1, 1],color="red")
 scatter = ax.scatter([], [])
 
 def init():
